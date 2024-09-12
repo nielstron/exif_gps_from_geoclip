@@ -122,12 +122,20 @@ def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = Fal
                     write_gps = False
                     break
             if dry_run:
-                _LOGGER.info(f"Would update EXIF GPS for {image_path} to {(top_lat, top_lon)}")
+                if write_gps:
+                    _LOGGER.info(f"Would update EXIF GPS for {image_path} to {(top_lat, top_lon)}")
+                else:
+                    _LOGGER.info(f"Would delete GPS for {image_path}")
                 return True
 
-            # Set the GPS data
+            # Set the GPS data (delete if no confidence)
             if write_gps:
                 exif_dict["GPS"].update(gps_ifd(top_lat, top_lon))
+            else:
+                exif_dict["GPS"].pop(piexif.GPSIFD.GPSLatitude, None)
+                exif_dict["GPS"].pop(piexif.GPSIFD.GPSLongitude, None)
+                exif_dict["GPS"].pop(piexif.GPSIFD.GPSLatitudeRef, None)
+                exif_dict["GPS"].pop(piexif.GPSIFD.GPSLongitudeRef, None)
             # Add processed tag
             exif_dict["Exif"][PROCESSED_TAG_INDEX] = PROCESSED_TAG.encode("ascii")
 
@@ -142,7 +150,7 @@ def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = Fal
             if write_gps:
                 _LOGGER.info(f"Updated EXIF GPS for {image_path} to {(top_lat, top_lon)}")
             else:
-                _LOGGER.debug(f"Wrote processed tag for {image_path}")
+                _LOGGER.debug(f"Wrote processed tag and deleted GPS for {image_path}")
             return True
         else:
             _LOGGER.debug(f"EXIF GPS already set for {image_path}")
