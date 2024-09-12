@@ -105,26 +105,29 @@ def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = Fal
             exif_dict = {"0th": {}, "1st": {}, "Exif": {}, "GPS": {}, "Interop": {}}
 
         # Check if GPS data exists
-        if piexif.GPSIFD.GPSLatitude not in exif_dict["GPS"] or (
-           exif_dict["GPS"].get(PROCESSED_TAG_INDEX, b"").decode("ascii").startswith(PROCESSED_TAG_NON_VARIABLE) and update
+        if (piexif.GPSIFD.GPSLatitude not in exif_dict["GPS"] and not exif_dict["Exif"].get(PROCESSED_TAG_INDEX, b"").decode("ascii").startswith(PROCESSED_TAG_NON_VARIABLE)) or (
+           exif_dict["Exif"].get(PROCESSED_TAG_INDEX, b"").decode("ascii").startswith(PROCESSED_TAG_NON_VARIABLE) and update
         ) or force:
             top_pred_gps, top_pred_prob = model.predict(str(image_path), top_k=top_k)
 
             # Sanity check: maximum n km between top prediction and the rest with sufficient probability
             top_lat, top_lon = top_pred_gps[0]
             top_lat, top_lon = float(top_lat.item()), float(top_lon.item())
+            write_gps = True
             for i in range(1, top_k):
                 lat, lon = top_pred_gps[i]
                 dist = distance(lat, lon, top_lat, top_lon)
                 if dist > max_distance:
                     _LOGGER.debug(f"Skipping {image_path}: Top prediction too far from other predictions ({dist:.2f} km)")
-                    return False
+                    write_gps = False
+                    break
             if dry_run:
                 _LOGGER.info(f"Would update EXIF GPS for {image_path} to {(top_lat, top_lon)}")
                 return True
 
             # Set the GPS data
-            exif_dict["GPS"].update(gps_ifd(top_lat, top_lon))
+            if write_gps:
+                exif_dict["GPS"].update(gps_ifd(top_lat, top_lon))
             # Add processed tag
             exif_dict["Exif"][PROCESSED_TAG_INDEX] = PROCESSED_TAG.encode("ascii")
 
@@ -136,10 +139,13 @@ def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = Fal
                 img.save(tmp.name, exif=exif_bytes)
 
                 os.replace(tmp.name, image_path)
-            _LOGGER.info(f"Updated EXIF GPS for {image_path} to {(top_lat, top_lon)}")
+            if write_gps:
+                _LOGGER.info(f"Updated EXIF GPS for {image_path} to {(top_lat, top_lon)}")
+            else:
+                _LOGGER.debug(f"Wrote processed tag for {image_path}")
             return True
         else:
-            _LOGGER.debug(f"EXIF date already set for {image_path}")
+            _LOGGER.debug(f"EXIF GPS already set for {image_path}")
 
     except Exception as e:
         _LOGGER.warning(f"Error processing {image_path}: {str(e)}")
