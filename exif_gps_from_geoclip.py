@@ -85,7 +85,7 @@ def gps_ifd(lat, lng, altitude=None):
     exif_dict = gps_ifd
     return exif_dict
 
-def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = False, force: bool = False, max_distance: int = 20, top_k: int = 5) -> bool:
+def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = False, force: bool = False, max_distance: int = 20, top_k: int = 10) -> bool:
     # Open the image
     try:
         img = Image.open(image_path)
@@ -121,6 +121,7 @@ def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = Fal
                     _LOGGER.debug(f"Skipping {image_path}: Top prediction too far from other predictions ({dist:.2f} km)")
                     write_gps = False
                     break
+            _LOGGER.debug(f"Top prediction: {top_lat}, {top_lon} ({top_pred_prob[0] * 100:.2f})")
             if dry_run:
                 if write_gps:
                     _LOGGER.info(f"Would update EXIF GPS for {image_path} to {(top_lat, top_lon)}")
@@ -161,7 +162,7 @@ def update_exif_date(image_path: Path, dry_run: bool = False, update: bool = Fal
 
 def process_directory(
     directory: str, verbosity: int = logging.INFO, wet_run: bool = False, update: bool= False, force: bool = False,
-        top_k: int = 5, max_distance: int = 20
+        top_k: int = 10, max_distance: int = 20
 ):
     """
     Process all images in the given directory and update their EXIF date based on filename, if missing
