@@ -1,0 +1,40 @@
+- parser: filename_regex
+  name: iOS
+  # example: 2013-03-07 16.28.22
+  regex: (?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2}) (?P<hour>\d{2})\.(?P<minute>\d{2})\.(?P<second>\d{2})
+- parser: filename_regex
+  name: WhatsApp
+  # example: IMG-20151101-WA0001
+  regex: IMG[-_](?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})[-_]WA(?P<minute>\d{2})(?P<second>\d{2})
+- parser: filename_regex
+  name: Threema
+  # example: threema-20220412-084636799
+  regex: threema-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2}).*
+- parser: filename_regex
+  name: Signal
+  # example: signal-2021-06-13-203304
+  regex: signal-(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2}).*
+- parser: filename_regex
+  name: Signal (alt)
+  # example: signal-2022-06-21-10-01-35-997-29
+  regex: signal-(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-(?P<hour>\d{2})-(?P<minute>\d{2})-(?P<second>\d{2}).*
+- parser: filename_regex
+  name: unk
+  regex: image-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})
+  # example: image-20230409-103235
+- parser: filename_regex
+  name: Instagram
+  # example: IMG_20220901_041339_391
+  regex: IMG_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})_\d{3}
+- parser: filename_regex
+  name: VR Image creator
+  # example: IMG_20191209_043621.vr
+  regex: IMG_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})\.vr.*
+- parser: filename_regex
+  name: Screenshot Android
+  # example: Screenshot_20220926-211023.png
+  regex: Screenshot_(\w*_)?(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2}).*
+- parser: filename_regex
+  name: Office Lens
+  # example: 2021_03_22 13_05 Office Lens.jpg
+  regex: (?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2}) (?P<hour>\d{2})_(?P<minute>\d{2}) Office Lens.*

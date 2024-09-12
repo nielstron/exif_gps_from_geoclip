@@ -1,0 +1,6 @@
+piexif
+pillow
+fire
+tqdm
+geoclip
+geopy
